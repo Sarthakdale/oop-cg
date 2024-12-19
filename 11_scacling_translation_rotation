@@ -1,0 +1,104 @@
+#include <iostream>
+#include <graphics.h>
+#include <cmath>
+using namespace std;
+
+class Transformation2D {
+private:
+    int points[10][2];
+    int n; // Number of vertices
+
+public:
+    // Input the vertices of the object
+    void inputObject() {
+        cout << "Enter the number of vertices of the object: ";
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            cout << "Enter vertex " << i + 1 << " (x y): ";
+            cin >> points[i][0] >> points[i][1];
+        }
+    }
+
+    // Display the object
+    void drawObject() {
+        for (int i = 0; i < n; i++) {
+            line(points[i][0], points[i][1], points[(i + 1) % n][0], points[(i + 1) % n][1]);
+        }
+    }
+
+    // Operator overloading for translation
+    void operator+(const pair<int, int> &translation) {
+        int tx = translation.first;
+        int ty = translation.second;
+        for (int i = 0; i < n; i++) {
+            points[i][0] += tx;
+            points[i][1] += ty;
+        }
+    }
+
+    // Operator overloading for scaling
+    void operator*(const pair<float, float> &scaling) {
+        float sx = scaling.first;
+        float sy = scaling.second;
+        for (int i = 0; i < n; i++) {
+            points[i][0] = round(points[i][0] * sx);
+            points[i][1] = round(points[i][1] * sy);
+        }
+    }
+
+    // Operator overloading for rotation
+    void operator^(float angle) {
+        float rad = angle * M_PI / 180.0;
+        for (int i = 0; i < n; i++) {
+            int x = points[i][0];
+            int y = points[i][1];
+            points[i][0] = round(x * cos(rad) - y * sin(rad));
+            points[i][1] = round(x * sin(rad) + y * cos(rad));
+        }
+    }
+};
+
+int main() {
+    int gd = DETECT, gm;
+    initgraph(&gd, &gm, NULL);
+
+    Transformation2D obj;
+    obj.inputObject();
+
+    cout << "Original Object:" << endl;
+    obj.drawObject();
+    getch();
+    cleardevice();
+
+    // Translation
+    int tx, ty;
+    cout << "Enter translation factors (tx ty): ";
+    cin >> tx >> ty;
+    obj + make_pair(tx, ty);
+    cout << "Translated Object:" << endl;
+    obj.drawObject();
+    getch();
+    cleardevice();
+
+    // Scaling
+    float sx, sy;
+    cout << "Enter scaling factors (sx sy): ";
+    cin >> sx >> sy;
+    obj * make_pair(sx, sy);
+    cout << "Scaled Object:" << endl;
+    obj.drawObject();
+    getch();
+    cleardevice();
+
+    // Rotation
+    float angle;
+    cout << "Enter rotation angle in degrees: ";
+    cin >> angle;
+    obj ^ angle;
+    cout << "Rotated Object:" << endl;
+    obj.drawObject();
+    getch();
+
+    closegraph();
+    return 0;
+}
