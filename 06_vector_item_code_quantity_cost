@@ -1,0 +1,77 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+using namespace std;
+
+// Item record structure
+struct Item {
+    int code;
+    string name;
+    float cost;
+    int quantity;
+
+    // Overloading < operator for sorting
+    bool operator<(const Item &other) const {
+        return code < other.code;
+    }
+
+    // Display item details
+    void display() const {
+        cout << "Code: " << code << ", Name: " << name
+             << ", Cost: " << cost << ", Quantity: " << quantity << endl;
+    }
+};
+
+// Function to search for an item by code
+void searchItem(const vector<Item> &items, int searchCode) {
+    auto it = find_if(items.begin(), items.end(), [searchCode](const Item &item) {
+        return item.code == searchCode;
+    });
+
+    if (it != items.end()) {
+        cout << "Item found: " << endl;
+        it->display();
+    } else {
+        cout << "Item with code " << searchCode << " not found." << endl;
+    }
+}
+
+int main() {
+    vector<Item> items;
+    int n;
+
+    cout << "Enter the number of items: ";
+    cin >> n;
+
+    for (int i = 0; i < n; ++i) {
+        Item item;
+        cout << "\nEnter details for item " << i + 1 << ":" << endl;
+        cout << "Code: ";
+        cin >> item.code;
+        cin.ignore();
+        cout << "Name: ";
+        getline(cin, item.name);
+        cout << "Cost: ";
+        cin >> item.cost;
+        cout << "Quantity: ";
+        cin >> item.quantity;
+        items.push_back(item);
+    }
+
+    // Sorting items by code
+    sort(items.begin(), items.end());
+
+    cout << "\nSorted items:" << endl;
+    for (const auto &item : items) {
+        item.display();
+    }
+
+    // Searching for an item by code
+    int searchCode;
+    cout << "\nEnter code to search: ";
+    cin >> searchCode;
+    searchItem(items, searchCode);
+
+    return 0;
+}
