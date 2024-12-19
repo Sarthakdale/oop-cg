@@ -1,0 +1,64 @@
+#include <iostream>
+#include <graphics.h>
+#include <vector>
+using namespace std;
+
+// Base class: Shape
+class Shape {
+protected:
+    vector<pair<int, int>> vertices;
+
+public:
+    void addVertex(int x, int y) {
+        vertices.push_back({x, y});
+    }
+
+    virtual void draw() = 0; // Pure virtual function
+};
+
+// Derived class: Polygon
+class Polygon : public Shape {
+public:
+    void draw() override {
+        int n = vertices.size();
+        int points[2 * n];
+
+        for (int i = 0; i < n; ++i) {
+            points[2 * i] = vertices[i].first;
+            points[2 * i + 1] = vertices[i].second;
+        }
+
+        // Draw the polygon
+        drawpoly(n, points);
+
+        // Fill the polygon using scan fill algorithm
+        setfillstyle(SOLID_FILL, GREEN);
+        fillpoly(n, points);
+    }
+};
+
+int main() {
+    int gd = DETECT, gm;
+    initgraph(&gd, &gm, NULL);
+
+    Polygon polygon;
+    int n;
+
+    cout << "Enter the number of vertices for the polygon: ";
+    cin >> n;
+
+    for (int i = 0; i < n; ++i) {
+        int x, y;
+        cout << "Enter vertex " << i + 1 << " (x y): ";
+        cin >> x >> y;
+        polygon.addVertex(x, y);
+    }
+
+    polygon.draw();
+
+    cout << "Press any key to exit...";
+    getch();
+    closegraph();
+
+    return 0;
+}
