@@ -1,0 +1,115 @@
+#include <GL/glut.h>
+#include <cmath>
+
+float angle = 0.0f; // Angle for rotation
+
+// Function to draw the 3D cube
+void drawCube() {
+    glBegin(GL_QUADS);  // Start drawing the cube faces
+    
+    // Front face
+    glColor3f(1.0f, 0.0f, 0.0f); // Red
+    glVertex3f(-1.0f, -1.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, 1.0f);
+    glVertex3f(-1.0f, 1.0f, 1.0f);
+
+    // Back face
+    glColor3f(0.0f, 1.0f, 0.0f); // Green
+    glVertex3f(-1.0f, -1.0f, -1.0f);
+    glVertex3f(-1.0f, 1.0f, -1.0f);
+    glVertex3f(1.0f, 1.0f, -1.0f);
+    glVertex3f(1.0f, -1.0f, -1.0f);
+
+    // Top face
+    glColor3f(0.0f, 0.0f, 1.0f); // Blue
+    glVertex3f(-1.0f, 1.0f, -1.0f);
+    glVertex3f(-1.0f, 1.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, -1.0f);
+
+    // Bottom face
+    glColor3f(1.0f, 1.0f, 0.0f); // Yellow
+    glVertex3f(-1.0f, -1.0f, -1.0f);
+    glVertex3f(1.0f, -1.0f, -1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
+    glVertex3f(-1.0f, -1.0f, 1.0f);
+
+    // Right face
+    glColor3f(1.0f, 0.0f, 1.0f); // Magenta
+    glVertex3f(1.0f, -1.0f, -1.0f);
+    glVertex3f(1.0f, 1.0f, -1.0f);
+    glVertex3f(1.0f, 1.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
+
+    // Left face
+    glColor3f(0.0f, 1.0f, 1.0f); // Cyan
+    glVertex3f(-1.0f, -1.0f, -1.0f);
+    glVertex3f(-1.0f, -1.0f, 1.0f);
+    glVertex3f(-1.0f, 1.0f, 1.0f);
+    glVertex3f(-1.0f, 1.0f, -1.0f);
+
+    glEnd();  // End drawing the cube faces
+}
+
+// Function to handle all transformations
+void applyTransformations() {
+    // Apply translation
+    glTranslatef(0.0f, 0.0f, -5.0f);  // Move the cube along the Z-axis
+
+    // Apply scaling
+    glScalef(1.0f, 1.0f, 1.0f);  // Scale by 1 in all directions (no scaling applied)
+
+    // Apply rotation
+    glRotatef(angle, 1.0f, 1.0f, 0.0f);  // Rotate about X and Y axes (combined rotation)
+
+    // Draw the cube
+    drawCube();
+}
+
+// Function to update the display
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear the screen
+    glLoadIdentity();  // Reset transformations
+
+    applyTransformations();  // Apply transformations and draw the cube
+
+    glutSwapBuffers();  // Swap the buffers to display the rendered scene
+}
+
+// Function to update the rotation angle for animation
+void update(int value) {
+    angle += 2.0f;  // Increase angle for continuous rotation
+
+    if (angle > 360) {
+        angle -= 360;  // Keep angle between 0 and 360 degrees
+    }
+
+    glutPostRedisplay();  // Request a redraw
+    glutTimerFunc(16, update, 0);  // Call update every 16 ms (60 FPS)
+}
+
+// Function to set up the OpenGL environment
+void initOpenGL() {
+    glEnable(GL_DEPTH_TEST);  // Enable depth testing for 3D effects
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set background color to black
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0f, 1.0f, 0.1f, 100.0f);  // Set perspective view
+}
+
+int main(int argc, char** argv) {
+    // Initialize GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);  // Enable double buffering and depth testing
+    glutInitWindowSize(800, 600);  // Set the window size
+    glutCreateWindow("3D Cube Transformations");
+
+    initOpenGL();  // Initialize OpenGL settings
+
+    glutDisplayFunc(display);  // Set display callback function
+    glutTimerFunc(25, update, 0);  // Set timer for updating rotation angle
+
+    glutMainLoop();  // Enter the GLUT event processing loop
+    return 0;
+}
