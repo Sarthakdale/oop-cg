@@ -1,0 +1,53 @@
+#include <iostream>
+using namespace std;
+
+// Function template for selection sort
+template <typename T>
+void selectionSort(T arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int minIndex = i;
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        swap(arr[i], arr[minIndex]);
+    }
+}
+
+// Function to print an array
+template <typename T>
+void printArray(T arr[], int n) {
+    for (int i = 0; i < n; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+    // Integer array
+    int intArr[] = {64, 34, 25, 12, 22, 11, 90};
+    int intSize = sizeof(intArr) / sizeof(intArr[0]);
+
+    cout << "Unsorted integer array: ";
+    printArray(intArr, intSize);
+
+    selectionSort(intArr, intSize);
+
+    cout << "Sorted integer array: ";
+    printArray(intArr, intSize);
+
+    // Float array
+    float floatArr[] = {64.5, 34.2, 25.1, 12.9, 22.0, 11.3, 90.8};
+    int floatSize = sizeof(floatArr) / sizeof(floatArr[0]);
+
+    cout << "\nUnsorted float array: ";
+    printArray(floatArr, floatSize);
+
+    selectionSort(floatArr, floatSize);
+
+    cout << "Sorted float array: ";
+    printArray(floatArr, floatSize);
+
+    return 0;
+}
