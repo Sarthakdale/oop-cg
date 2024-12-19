@@ -1,0 +1,96 @@
+#include <iostream>
+#include <GL/glut.h>
+#include <vector>
+
+using namespace std;
+
+// Stack data structure
+class Stack {
+public:
+    vector<int> stack;
+    int max_size = 5;
+
+    void push(int value) {
+        if (stack.size() < max_size) {
+            stack.push_back(value);
+        }
+    }
+
+    void pop() {
+        if (!stack.empty()) {
+            stack.pop_back();
+        }
+    }
+
+    void display() {
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Draw the stack elements
+        for (int i = 0; i < stack.size(); i++) {
+            float y = i * 0.2f; // Vertical spacing of stack elements
+
+            glColor3f(0.0f, 0.0f, 1.0f); // Set color to blue for stack elements
+            glBegin(GL_QUADS);
+            glVertex2f(-0.2f, y);
+            glVertex2f(0.2f, y);
+            glVertex2f(0.2f, y + 0.1f);
+            glVertex2f(-0.2f, y + 0.1f);
+            glEnd();
+
+            // Display the stack value
+            glColor3f(1.0f, 1.0f, 1.0f); // White color for text
+            renderBitmapString(-0.1f, y + 0.05f, to_string(stack[i]).c_str());
+        }
+
+        glFlush();
+        glutSwapBuffers();
+    }
+
+    // Function to display text
+    void renderBitmapString(float x, float y, const char* string) {
+        glRasterPos2f(x, y);
+        while (*string) {
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *string);
+            string++;
+        }
+    }
+};
+
+// Global stack object
+Stack stack;
+int currentValue = 1;
+
+// Functions for GLUT event handling
+void display() {
+    stack.display();
+}
+
+void keyboard(unsigned char key, int x, int y) {
+    if (key == 'p') { // Push operation
+        stack.push(currentValue++);
+    } else if (key == 'o') { // Pop operation
+        stack.pop();
+    }
+    glutPostRedisplay();
+}
+
+void init() {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background to black
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-0.5f, 0.5f, -0.5f, 0.5f); // Define the 2D coordinate system
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(400, 400);
+    glutCreateWindow("Stack Visualization");
+
+    init();
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);
+
+    glutMainLoop();
+    return 0;
+}
