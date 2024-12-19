@@ -1,0 +1,123 @@
+#include <GL/glut.h>
+#include <iostream>
+
+// Abstract base class for movement
+class BallMovement {
+public:
+    virtual void move(float &x, float &y) = 0; // Pure virtual function
+};
+
+// Derived class for moving the ball upwards
+class MoveUp : public BallMovement {
+public:
+    void move(float &x, float &y) override {
+        y += 0.05f;  // Move up
+    }
+};
+
+// Derived class for moving the ball downwards
+class MoveDown : public BallMovement {
+public:
+    void move(float &x, float &y) override {
+        y -= 0.05f;  // Move down
+    }
+};
+
+// Derived class for moving the ball to the left
+class MoveLeft : public BallMovement {
+public:
+    void move(float &x, float &y) override {
+        x -= 0.05f;  // Move left
+    }
+};
+
+// Derived class for moving the ball to the right
+class MoveRight : public BallMovement {
+public:
+    void move(float &x, float &y) override {
+        x += 0.05f;  // Move right
+    }
+};
+
+float ballX = 0.0f, ballY = 0.0f;  // Ball position
+BallMovement* movement = nullptr;  // Pointer to BallMovement class
+
+// Function to draw the ball
+void drawBall() {
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 360; i++) {
+        float angle = i * 3.14159f / 180.0f;
+        glVertex2f(ballX + 0.1f * cos(angle), ballY + 0.1f * sin(angle)); // Ball radius = 0.1
+    }
+    glEnd();
+}
+
+// Function to handle keyboard input
+void handleKeys(unsigned char key, int x, int y) {
+    if (key == 27) {  // Escape key to quit
+        exit(0);
+    }
+
+    // Change movement direction based on the arrow key
+    if (key == GLUT_KEY_UP) {
+        movement = new MoveUp();  // Set the movement to move up
+    }
+    if (key == GLUT_KEY_DOWN) {
+        movement = new MoveDown();  // Set the movement to move down
+    }
+    if (key == GLUT_KEY_LEFT) {
+        movement = new MoveLeft();  // Set the movement to move left
+    }
+    if (key == GLUT_KEY_RIGHT) {
+        movement = new MoveRight();  // Set the movement to move right
+    }
+}
+
+// Function to update the ball's position
+void update() {
+    if (movement) {
+        movement->move(ballX, ballY);  // Move the ball based on the selected movement
+    }
+
+    glutPostRedisplay();  // Request to redraw the scene
+}
+
+// Display function to render the scene
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw the ball
+    glColor3f(1.0f, 0.0f, 0.0f);  // Red color for the ball
+    drawBall();
+
+    glutSwapBuffers();  // Swap buffers to display the scene
+}
+
+// Initialize OpenGL
+void initOpenGL() {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set background color to black
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);  // Set orthogonal projection
+}
+
+int main(int argc, char** argv) {
+    // Initialize GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Ball Control Using Arrow Keys");
+
+    initOpenGL();
+
+    // Register the display and keyboard functions
+    glutDisplayFunc(display);
+    glutSpecialFunc(handleKeys);  // Handle special keys (arrow keys)
+
+    glutIdleFunc(update);  // Continuously update the ball's position
+
+    // Start the main loop
+    glutMainLoop();
+
+    return 0;
+}
