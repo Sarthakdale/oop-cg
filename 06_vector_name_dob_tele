@@ -1,0 +1,83 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+
+using namespace std;
+
+// Define a structure for personal records
+struct PersonalRecord {
+    string name;
+    string dob; // Date of Birth in DD/MM/YYYY format
+    string phone;
+
+    // Comparison operator for sorting (sort by name)
+    bool operator<(const PersonalRecord& other) const {
+        return name < other.name;
+    }
+};
+
+// Function to display all records
+void displayRecords(const vector<PersonalRecord>& records) {
+    cout << "\nPersonal Records:\n";
+    cout << "------------------\n";
+    for (const auto& record : records) {
+        cout << "Name: " << record.name
+             << ", DOB: " << record.dob
+             << ", Phone: " << record.phone << endl;
+    }
+    cout << "------------------\n";
+}
+
+// Function to search for a record by name
+void searchRecord(const vector<PersonalRecord>& records, const string& name) {
+    auto it = find_if(records.begin(), records.end(),
+                      [&name](const PersonalRecord& record) {
+                          return record.name == name;
+                      });
+
+    if (it != records.end()) {
+        cout << "\nRecord Found:\n";
+        cout << "Name: " << it->name
+             << ", DOB: " << it->dob
+             << ", Phone: " << it->phone << endl;
+    } else {
+        cout << "\nRecord not found.\n";
+    }
+}
+
+int main() {
+    vector<PersonalRecord> records;
+    int n;
+
+    cout << "Enter the number of records: ";
+    cin >> n;
+    cin.ignore(); // Ignore the newline character
+
+    // Input records from the user
+    for (int i = 0; i < n; ++i) {
+        PersonalRecord record;
+        cout << "\nEnter details for record " << i + 1 << ":\n";
+        cout << "Name: ";
+        getline(cin, record.name);
+        cout << "DOB (DD/MM/YYYY): ";
+        getline(cin, record.dob);
+        cout << "Phone: ";
+        getline(cin, record.phone);
+        records.push_back(record);
+    }
+
+    // Sort the records
+    sort(records.begin(), records.end());
+
+    // Display sorted records
+    displayRecords(records);
+
+    // Search for a record
+    string searchName;
+    cout << "\nEnter a name to search: ";
+    getline(cin, searchName);
+    searchRecord(records, searchName);
+
+    return 0;
+}
