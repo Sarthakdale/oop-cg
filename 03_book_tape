@@ -1,0 +1,93 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Base class: Publication
+class Publication {
+protected:
+    string title;
+    float price;
+
+public:
+    Publication() : title(""), price(0.0) {}
+
+    void getData() {
+        cout << "Enter title: ";
+        cin.ignore();
+        getline(cin, title);
+        cout << "Enter price: ";
+        cin >> price;
+    }
+
+    void putData() const {
+        cout << "Title: " << title << endl;
+        cout << "Price: " << price << endl;
+    }
+};
+
+// Derived class: Book
+class Book : public Publication {
+private:
+    int pageCount;
+
+public:
+    Book() : pageCount(0) {}
+
+    void getData() {
+        Publication::getData();
+        cout << "Enter page count: ";
+        cin >> pageCount;
+        if (pageCount < 0) throw invalid_argument("Page count cannot be negative.");
+    }
+
+    void putData() const {
+        Publication::putData();
+        cout << "Page Count: " << pageCount << endl;
+    }
+};
+
+// Derived class: Tape
+class Tape : public Publication {
+private:
+    float playingTime;
+
+public:
+    Tape() : playingTime(0.0) {}
+
+    void getData() {
+        Publication::getData();
+        cout << "Enter playing time (in minutes): ";
+        cin >> playingTime;
+        if (playingTime < 0) throw invalid_argument("Playing time cannot be negative.");
+    }
+
+    void putData() const {
+        Publication::putData();
+        cout << "Playing Time: " << playingTime << " minutes" << endl;
+    }
+};
+
+int main() {
+    Book book;
+    Tape tape;
+
+    try {
+        cout << "Enter details for book:" << endl;
+        book.getData();
+        cout << "\nEnter details for tape:" << endl;
+        tape.getData();
+    } catch (const exception &e) {
+        cerr << "Error: " << e.what() << endl;
+        cout << "Resetting data to zero values." << endl;
+        book = Book();
+        tape = Tape();
+    }
+
+    cout << "\nBook details:" << endl;
+    book.putData();
+
+    cout << "\nTape details:" << endl;
+    tape.putData();
+
+    return 0;
+}
