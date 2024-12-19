@@ -1,0 +1,71 @@
+#include <iostream>
+#include <graphics.h>
+#include <cmath>
+using namespace std;
+
+class Snowflake {
+public:
+    void drawLine(float x1, float y1, float x2, float y2, int level) {
+        if (level == 0) {
+            line(x1, y1, x2, y2);
+        } else {
+            float dx = (x2 - x1) / 3;
+            float dy = (y2 - y1) / 3;
+
+            float x3 = x1 + dx;
+            float y3 = y1 + dy;
+
+            float x5 = x2 - dx;
+            float y5 = y2 - dy;
+
+            float x4 = x3 + dx * cos(M_PI / 3) - dy * sin(M_PI / 3);
+            float y4 = y3 + dx * sin(M_PI / 3) + dy * cos(M_PI / 3);
+
+            drawLine(x1, y1, x3, y3, level - 1);
+            drawLine(x3, y3, x4, y4, level - 1);
+            drawLine(x4, y4, x5, y5, level - 1);
+            drawLine(x5, y5, x2, y2, level - 1);
+        }
+    }
+
+    void drawSnowflake(float x, float y, float size, int level) {
+        float x1 = x;
+        float y1 = y;
+
+        float x2 = x + size * cos(0);
+        float y2 = y + size * sin(0);
+
+        float x3 = x + size * cos(2 * M_PI / 3);
+        float y3 = y + size * sin(2 * M_PI / 3);
+
+        float x4 = x + size * cos(4 * M_PI / 3);
+        float y4 = y + size * sin(4 * M_PI / 3);
+
+        drawLine(x1, y1, x2, y2, level);
+        drawLine(x2, y2, x3, y3, level);
+        drawLine(x3, y3, x4, y4, level);
+        drawLine(x4, y4, x1, y1, level);
+    }
+};
+
+int main() {
+    int gd = DETECT, gm;
+    initgraph(&gd, &gm, NULL);
+
+    Snowflake snowflake;
+    float x, y, size;
+    int level;
+
+    cout << "Enter the center coordinates of the snowflake (x y): ";
+    cin >> x >> y;
+    cout << "Enter the size of the snowflake: ";
+    cin >> size;
+    cout << "Enter the level of recursion: ";
+    cin >> level;
+
+    snowflake.drawSnowflake(x, y, size, level);
+
+    getch();
+    closegraph();
+    return 0;
+}
