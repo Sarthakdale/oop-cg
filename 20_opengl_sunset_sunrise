@@ -1,0 +1,112 @@
+#include <GL/glut.h>
+#include <cmath>
+
+float sunPos = -1.0f; // Sun position: -1.0 (below horizon) to 1.0 (above horizon)
+float skyColor[] = {0.0f, 0.0f, 0.2f}; // Initial sky color (dark blue at night)
+bool isSunrise = true; // Flag for sunrise or sunset
+
+// Function to draw the sun
+void drawSun(float x, float y, float radius) {
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 360; i++) {
+        float angle = i * 3.14159f / 180.0f;
+        float dx = radius * cos(angle);
+        float dy = radius * sin(angle);
+        glVertex2f(x + dx, y + dy);
+    }
+    glEnd();
+}
+
+// Function to draw the ground
+void drawGround() {
+    glBegin(GL_QUADS);
+    glColor3f(0.0f, 0.5f, 0.0f); // Green color for the ground
+    glVertex2f(-1.0f, -1.0f);
+    glVertex2f(1.0f, -1.0f);
+    glVertex2f(1.0f, -0.8f); // Slightly raised ground
+    glVertex2f(-1.0f, -0.8f);
+    glEnd();
+}
+
+// Function to draw the sky with a gradient
+void drawSky() {
+    if (sunPos < 0) {  // Night sky
+        glColor3f(0.0f, 0.0f, 0.2f); // Dark blue
+    } else {  // Daytime sky
+        glColor3f(0.0f, 0.5f, 1.0f); // Light blue
+    }
+
+    glBegin(GL_QUADS);
+    glVertex2f(-1.0f, 1.0f);
+    glVertex2f(1.0f, 1.0f);
+    glVertex2f(1.0f, -1.0f);
+    glVertex2f(-1.0f, -1.0f);
+    glEnd();
+}
+
+// Function to update the sun's position and sky color
+void updateScene(int value) {
+    if (isSunrise) {
+        // Sunrise: Move sun upward and change sky color gradually
+        sunPos += 0.005f; // Sun rises
+        skyColor[2] += 0.005f; // Sky gets brighter
+
+        if (sunPos >= 1.0f) {  // When sun reaches the top
+            isSunrise = false;  // Change to sunset
+        }
+    } else {
+        // Sunset: Move sun downward and change sky color gradually
+        sunPos -= 0.005f; // Sun sets
+        skyColor[2] -= 0.005f; // Sky gets darker
+
+        if (sunPos <= -1.0f) {  // When sun reaches below horizon
+            isSunrise = true;  // Change to sunrise
+        }
+    }
+
+    glutPostRedisplay();  // Redraw the scene
+    glutTimerFunc(50, updateScene, 0);  // Update every 50ms (20 FPS)
+}
+
+// Function to display the scene
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Set the background color to simulate the sky
+    glClearColor(skyColor[0], skyColor[1], skyColor[2], 1.0f);
+
+    // Draw the sky
+    drawSky();
+
+    // Draw the ground
+    drawGround();
+
+    // Draw the sun at the current position
+    glColor3f(1.0f, 1.0f, 0.0f); // Yellow color for the sun
+    drawSun(0.0f, sunPos, 0.1f); // Sun position and size
+
+    glutSwapBuffers();
+}
+
+// Function to initialize OpenGL
+void initOpenGL() {
+    glClearColor(0.0f, 0.0f, 0.2f, 1.0f); // Set background color (dark blue night sky)
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f); // Set orthogonal projection
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Sunrise and Sunset Simulation");
+
+    initOpenGL();
+
+    glutDisplayFunc(display);
+    glutTimerFunc(50, updateScene, 0);  // Start the animation
+
+    glutMainLoop();
+    return 0;
+}
