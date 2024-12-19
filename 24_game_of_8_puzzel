@@ -1,0 +1,105 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+// Base class for the 8 Puzzle
+class Puzzle {
+public:
+    virtual void display() = 0;   // Pure virtual function to display the board
+    virtual bool moveTile(int direction) = 0;  // Move a tile based on direction
+    virtual bool isSolved() = 0;  // Check if the puzzle is solved
+};
+
+// Derived class for implementing the 8 Puzzle game logic
+class EightPuzzle : public Puzzle {
+private:
+    vector<vector<int>> board;  // 3x3 board to represent the puzzle
+    int emptyRow, emptyCol;  // Position of the empty space (0)
+    const vector<vector<int>> goalState = {{1, 2, 3}, {4, 5, 6}, {7, 8, 0}};  // Goal configuration
+
+public:
+    EightPuzzle() {
+        // Initialize a random starting board
+        board = {{1, 2, 3}, {4, 5, 6}, {7, 8, 0}};
+        emptyRow = 2; emptyCol = 2;
+        srand(time(0));
+    }
+
+    // Display the board
+    void display() override {
+        cout << "Current Puzzle State:" << endl;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == 0)
+                    cout << "  " << "  ";
+                else
+                    cout << board[i][j] << "  ";
+            }
+            cout << endl;
+        }
+    }
+
+    // Check if the puzzle is solved
+    bool isSolved() override {
+        return board == goalState;
+    }
+
+    // Move tile into the empty space (direction: 1=up, 2=down, 3=left, 4=right)
+    bool moveTile(int direction) override {
+        int newRow = emptyRow, newCol = emptyCol;
+
+        switch (direction) {
+            case 1: newRow--; break;  // Move up
+            case 2: newRow++; break;  // Move down
+            case 3: newCol--; break;  // Move left
+            case 4: newCol++; break;  // Move right
+            default:
+                cout << "Invalid direction!" << endl;
+                return false;
+        }
+
+        // Check if the move is within bounds
+        if (newRow >= 0 && newRow < 3 && newCol >= 0 && newCol < 3) {
+            swap(board[emptyRow][emptyCol], board[newRow][newCol]);  // Swap the empty space with the tile
+            emptyRow = newRow;
+            emptyCol = newCol;
+            return true;
+        }
+
+        cout << "Move out of bounds!" << endl;
+        return false;
+    }
+};
+
+// Driver function
+int main() {
+    EightPuzzle puzzle;
+
+    while (true) {
+        puzzle.display();  // Display the current state of the puzzle
+
+        if (puzzle.isSolved()) {
+            cout << "Congratulations! You've solved the puzzle!" << endl;
+            break;
+        }
+
+        int direction;
+        cout << "Enter move (1: up, 2: down, 3: left, 4: right, 0: quit): ";
+        cin >> direction;
+
+        if (direction == 0) {
+            cout << "Exiting the game..." << endl;
+            break;
+        }
+
+        // Move the tile in the specified direction
+        if (!puzzle.moveTile(direction)) {
+            cout << "Invalid move. Try again." << endl;
+        }
+    }
+
+    return 0;
+}
