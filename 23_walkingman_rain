@@ -1,0 +1,178 @@
+#include <GL/glut.h>
+#include <cmath>
+#include <vector>
+
+using namespace std;
+
+// Abstract base class for drawable objects
+class Drawable {
+public:
+    virtual void draw() = 0; // Pure virtual function for drawing
+    virtual void update(float time) = 0; // Virtual function for updating position
+};
+
+// Derived class for the man
+class Man : public Drawable {
+private:
+    float x, y; // Position of the man
+public:
+    Man(float initX, float initY) : x(initX), y(initY) {}
+
+    void draw() override {
+        // Draw the man's body
+        glColor3f(1.0f, 0.0f, 0.0f); // Red color for the body
+        glBegin(GL_LINES);
+        glVertex2f(x, y);           // Body (from bottom to head)
+        glVertex2f(x, y + 0.2f);   
+        glEnd();
+
+        // Draw the man's head
+        glColor3f(1.0f, 0.8f, 0.6f); // Skin color for the head
+        glBegin(GL_POLYGON);
+        for (int i = 0; i < 360; i++) {
+            float angle = i * 3.14159f / 180.0f;
+            glVertex2f(x + 0.1f * cos(angle), y + 0.2f + 0.1f * sin(angle));
+        }
+        glEnd();
+    }
+
+    void update(float time) override {
+        // Move the man in the X direction to simulate walking
+        x += 0.01f;  // Move rightward with time
+    }
+
+    float getX() { return x; }
+    float getY() { return y; }
+};
+
+// Derived class for the umbrella
+class Umbrella : public Drawable {
+private:
+    float x, y; // Position of the umbrella (same as the man)
+public:
+    Umbrella(float initX, float initY) : x(initX), y(initY) {}
+
+    void draw() override {
+        // Draw the umbrella
+        glColor3f(0.0f, 0.0f, 1.0f); // Blue color for the umbrella
+        glBegin(GL_POLYGON);
+        for (int i = 0; i < 180; i++) {
+            float angle = i * 3.14159f / 180.0f;
+            glVertex2f(x + 0.2f * cos(angle), y + 0.3f + 0.1f * sin(angle));  // Umbrella arc
+        }
+        glEnd();
+
+        // Draw the umbrella handle (a line)
+        glColor3f(0.0f, 0.0f, 0.0f); // Black color for the handle
+        glBegin(GL_LINES);
+        glVertex2f(x, y + 0.3f);  // Top of the handle
+        glVertex2f(x, y - 0.2f);  // Bottom of the handle
+        glEnd();
+    }
+
+    void update(float time) override {
+        // Update the umbrella's position with the man
+        x += 0.01f; // Move rightward with the man
+    }
+};
+
+// Derived class for the raindrop
+class Raindrop : public Drawable {
+private:
+    float x, y; // Position of the raindrop
+public:
+    Raindrop(float initX, float initY) : x(initX), y(initY) {}
+
+    void draw() override {
+        // Draw the raindrop as a small line
+        glColor3f(0.0f, 0.0f, 1.0f); // Blue color for the raindrop
+        glBegin(GL_LINES);
+        glVertex2f(x, y);
+        glVertex2f(x, y - 0.1f); // Raindrop moves downward
+        glEnd();
+    }
+
+    void update(float time) override {
+        // Move the raindrop downward
+        y -= 0.02f;  // Fall speed of raindrop
+    }
+};
+
+// Global variables for objects
+Man man(0.0f, 0.0f);          // The man object
+Umbrella umbrella(0.0f, 0.0f);  // The umbrella object
+vector<Raindrop> raindrops;     // Vector to hold raindrops
+float timeElapsed = 0.0f;       // Time variable for updating
+
+// Function to initialize OpenGL settings
+void initOpenGL() {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f); // Set 2D orthogonal projection
+}
+
+// Function to draw all objects
+void drawScene() {
+    glClear(GL_COLOR_BUFFER_BIT); // Clear the screen
+
+    // Draw all objects
+    man.draw();
+    umbrella.draw();
+
+    // Draw raindrops
+    for (auto& raindrop : raindrops) {
+        raindrop.draw();
+    }
+
+    glutSwapBuffers(); // Swap buffers to display the scene
+}
+
+// Function to update the positions of all objects
+void updateScene(int value) {
+    timeElapsed += 0.05f; // Increment time for animation
+
+    // Update the man and umbrella movement
+    man.update(timeElapsed);
+    umbrella.update(timeElapsed);
+
+    // Add new raindrops at random positions
+    if (timeElapsed > 0.1f) {
+        raindrops.push_back(Raindrop((rand() % 200 - 100) / 100.0f, 1.0f)); // Random X position
+        timeElapsed = 0.0f; // Reset time for the next drop
+    }
+
+    // Update raindrop positions
+    for (auto& raindrop : raindrops) {
+        raindrop.update(timeElapsed);
+    }
+
+    // Remove raindrops that are off the screen
+    raindrops.erase(remove_if(raindrops.begin(), raindrops.end(),
+                [](Raindrop& drop) { return drop.getY() < -1.0f; }), raindrops.end());
+
+    glutPostRedisplay(); // Request to redraw the scene
+
+    // Call the update function again after 16 ms (60 FPS)
+    glutTimerFunc(16, updateScene, 0);
+}
+
+// Main function
+int main(int argc, char** argv) {
+    // Initialize GLUT and OpenGL
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Man Walking in the Rain with an Umbrella");
+
+    initOpenGL();
+
+    // Start the update and display functions
+    glutDisplayFunc(drawScene);
+    glutTimerFunc(25, updateScene, 0);
+
+    // Start the GLUT main loop
+    glutMainLoop();
+
+    return 0;
+}
