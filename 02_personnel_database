@@ -1,0 +1,127 @@
+#include <iostream>
+#include <string>
+#include <stdexcept>
+using namespace std;
+
+class Personnel {
+private:
+    string name;
+    string dob; // Date of Birth
+    string bloodGroup;
+    double height;
+    double weight;
+    string insurancePolicyNumber;
+    string contactAddress;
+    string telephoneNumber;
+    string drivingLicenseNumber;
+
+    static int personnelCount; // Static member to keep track of personnel count
+
+public:
+    // Default constructor
+    Personnel() : name("Unknown"), dob("00-00-0000"), bloodGroup("Unknown"), height(0.0), weight(0.0),
+                  insurancePolicyNumber("Unknown"), contactAddress("Unknown"), telephoneNumber("Unknown"), drivingLicenseNumber("Unknown") {
+        ++personnelCount;
+    }
+
+    // Parameterized constructor
+    Personnel(string n, string d, string b, double h, double w, string i, string c, string t, string dl)
+        : name(n), dob(d), bloodGroup(b), height(h), weight(w),
+          insurancePolicyNumber(i), contactAddress(c), telephoneNumber(t), drivingLicenseNumber(dl) {
+        ++personnelCount;
+    }
+
+    // Copy constructor
+    Personnel(const Personnel &p)
+        : name(p.name), dob(p.dob), bloodGroup(p.bloodGroup), height(p.height), weight(p.weight),
+          insurancePolicyNumber(p.insurancePolicyNumber), contactAddress(p.contactAddress),
+          telephoneNumber(p.telephoneNumber), drivingLicenseNumber(p.drivingLicenseNumber) {
+        ++personnelCount;
+    }
+
+    // Destructor
+    ~Personnel() {
+        --personnelCount;
+    }
+
+    // Static member function
+    static int getPersonnelCount() {
+        return personnelCount;
+    }
+
+    // Member function to display personnel information
+    void display() const {
+        cout << "Name: " << name << endl;
+        cout << "Date of Birth: " << dob << endl;
+        cout << "Blood Group: " << bloodGroup << endl;
+        cout << "Height: " << height << " cm" << endl;
+        cout << "Weight: " << weight << " kg" << endl;
+        cout << "Insurance Policy Number: " << insurancePolicyNumber << endl;
+        cout << "Contact Address: " << contactAddress << endl;
+        cout << "Telephone Number: " << telephoneNumber << endl;
+        cout << "Driving License Number: " << drivingLicenseNumber << endl;
+    }
+
+    // Inline function to set name
+    inline void setName(const string &n) {
+        name = n;
+    }
+
+    // Friend class declaration
+    friend class PersonnelManager;
+
+    // Overloaded new operator
+    void *operator new(size_t size) {
+        cout << "Allocating memory for Personnel object..." << endl;
+        void *p = ::operator new(size);
+        if (!p)
+            throw bad_alloc();
+        return p;
+    }
+
+    // Overloaded delete operator
+    void operator delete(void *p) {
+        cout << "Deallocating memory for Personnel object..." << endl;
+        ::operator delete(p);
+    }
+};
+
+// Initialize static member
+int Personnel::personnelCount = 0;
+
+class PersonnelManager {
+public:
+    void updateContactAddress(Personnel &p, const string &newAddress) {
+        p.contactAddress = newAddress;
+    }
+};
+
+int main() {
+    try {
+        // Create Personnel objects dynamically
+        Personnel *p1 = new Personnel("John Doe", "01-01-1980", "O+", 180, 75, "P123456", "123 Street, City", "1234567890", "DL12345");
+        Personnel *p2 = new Personnel;
+
+        cout << "Personnel Database:\n";
+        p1->display();
+        cout << endl;
+        p2->display();
+
+        // Update address using friend class
+        PersonnelManager manager;
+        manager.updateContactAddress(*p2, "456 Avenue, City");
+        cout << "\nUpdated Address for second personnel:\n";
+        p2->display();
+
+        // Display personnel count
+        cout << "\nTotal Personnel: " << Personnel::getPersonnelCount() << endl;
+
+        // Delete objects
+        delete p1;
+        delete p2;
+    } catch (const exception &e) {
+        cerr << "Error: " << e.what() << endl;
+    }
+
+    return 0;
+}
