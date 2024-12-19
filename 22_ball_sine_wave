@@ -1,0 +1,84 @@
+#include <GL/glut.h>
+#include <cmath>
+#include <iostream>
+
+// Abstract base class for ball movement
+class BallMovement {
+public:
+    virtual void move(float &x, float &y, float time) = 0; // Pure virtual function for movement
+};
+
+// Derived class for sine wave-based bouncing
+class SineBounce : public BallMovement {
+public:
+    void move(float &x, float &y, float time) override {
+        // Sine wave function for vertical bouncing
+        y = 0.5f * sin(time);  // Amplitude of 0.5 and period of 2*pi
+        x += 0.01f; // Horizontal movement (constant speed)
+    }
+};
+
+float ballX = -1.0f, ballY = 0.0f;  // Initial position of the ball
+float timeElapsed = 0.0f;  // Time variable to control the sine wave
+BallMovement* movement = nullptr;  // Pointer to the BallMovement class
+
+// Function to draw the ball
+void drawBall() {
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 360; i++) {
+        float angle = i * 3.14159f / 180.0f;
+        glVertex2f(ballX + 0.1f * cos(angle), ballY + 0.1f * sin(angle)); // Ball radius = 0.1
+    }
+    glEnd();
+}
+
+// Function to update the ball's position
+void update() {
+    if (movement) {
+        movement->move(ballX, ballY, timeElapsed);  // Move the ball based on sine wave function
+    }
+
+    timeElapsed += 0.05f;  // Increment time to update the sine wave
+    glutPostRedisplay();  // Redraw the scene
+}
+
+// Function to display the scene
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw the ball
+    glColor3f(1.0f, 0.0f, 0.0f);  // Red color for the ball
+    drawBall();
+
+    glutSwapBuffers();  // Swap buffers to display the scene
+}
+
+// Function to initialize OpenGL
+void initOpenGL() {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set background color to black
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);  // Set orthogonal projection
+}
+
+int main(int argc, char** argv) {
+    // Initialize GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Bouncing Ball Using Sine Wave");
+
+    initOpenGL();
+
+    // Create a SineBounce movement object
+    movement = new SineBounce();
+
+    // Register the display and idle functions
+    glutDisplayFunc(display);
+    glutIdleFunc(update);  // Continuously update the ball's position
+
+    // Start the main loop
+    glutMainLoop();
+
+    return 0;
+}
