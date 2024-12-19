@@ -1,0 +1,42 @@
+#include <iostream>
+#include <graphics.h>
+using namespace std;
+
+class HilbertCurve {
+public:
+    void drawHilbert(int x, int y, int xi, int xj, int yi, int yj, int n) {
+        if (n <= 0) {
+            int x1 = x + (xi + yi) / 2;
+            int y1 = y + (xj + yj) / 2;
+            int x2 = x + (xi - yi) / 2;
+            int y2 = y + (xj - yj) / 2;
+            line(x1, y1, x2, y2);
+        } else {
+            drawHilbert(x, y, yi / 2, yj / 2, xi / 2, xj / 2, n - 1);
+            drawHilbert(x + xi / 2, y + xj / 2, xi / 2, xj / 2, yi / 2, yj / 2, n - 1);
+            drawHilbert(x + xi / 2 + yi / 2, y + xj / 2 + yj / 2, xi / 2, xj / 2, yi / 2, yj / 2, n - 1);
+            drawHilbert(x + xi / 2 + yi, y + xj / 2 + yj, -yi / 2, -yj / 2, -xi / 2, -xj / 2, n - 1);
+        }
+    }
+};
+
+int main() {
+    int gd = DETECT, gm;
+    initgraph(&gd, &gm, NULL);
+
+    HilbertCurve hilbert;
+    int x, y, size, level;
+
+    cout << "Enter the starting coordinates of the Hilbert curve (x y): ";
+    cin >> x >> y;
+    cout << "Enter the size of the Hilbert curve: ";
+    cin >> size;
+    cout << "Enter the level of recursion: ";
+    cin >> level;
+
+    hilbert.drawHilbert(x, y, size, 0, 0, size, level);
+
+    getch();
+    closegraph();
+    return 0;
+}
